@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Load Coinman</title>
+	<title>coinman</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 </head>
 <body>
 
-<div id="load-data"><!-- all data contents here--></div>
+<div id="load-results"></div>
 
 <script type="text/javascript">
 	$("document").ready(function (){
-		var data = 'all';
+		// dummy data
+		var data = "all";
+
 		$.ajax({
 			type: "GET",
-			url: "class/load-data.php",
+			url: "data.php",
 			dataType: "json",
 			data: {
-				data: data
+				data:data
 			},
+			cache:false,
 			success: function(data){
-				// here data is alread in Json from the dataType set
-				// $("#load-data").html(converted json here);
+				// data is already on json object
+				
+				//console.log(data['buys']);
+				//console.log(data['sales']);
 			}
 		});
 	});
-
 </script>
 </body>
 </html>
