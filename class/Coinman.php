@@ -62,18 +62,20 @@ class Coinman
 
   public function loadData() {
     $exe = $this->db->query("SELECT * FROM trade_history ORDER BY buys DESC LIMIT 5");
-    $displayData = $exe->fetchAll();
-    if(empty($displayData)) {
-      // i've not taken care of this....
-    }
-    $this->json_response($displayData);
+    $exe2 = $this->db->query("SELECT * FROM trade_history ORDER BY sales DESC LIMIT 5");
+    $buysData = $exe->fetchAll();
+    $sellsData = $exe2->fetchAll();
+
+    $arr = ['buys' => $buysData, 'sales' => $sellsData];
+
+    $this->json_response($arr);
   }
 
   private function saveCoinData($coinData) {
     $coin = $coinData[0];
     $buys = $coinData[1];
     $sales = $coinData[2];
-    
+
     $this->db->query("UPDATE trade_history SET buys = '$buys', sales = '$sales' WHERE pair='$coin' )");
   }
 
