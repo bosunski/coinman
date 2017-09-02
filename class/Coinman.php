@@ -14,7 +14,7 @@ class Coinman
   public function __construct($api_key, $api_secret)
   {
     $this->poloniex = new Poloniex($api_key, $api_secret);
-    $this->db = new PDO('mysql:host=localhost;dbname=hng', 'hngintern', '@hng.intern1');
+    $this->db = new PDO('mysql:host=sql213.byethost24.com;dbname=b24_18817828_coin', 'b24_18817828', 'gabriel10');
   }
 
   /**
@@ -34,10 +34,12 @@ class Coinman
 
   public function catchData() {
     $coins = $this->getPairsFromDb();
-    if(empty($coins))
+    if(empty($coins)) {
       $coins = $this->poloniex->get_trading_pairs();
+      $coins = $this->getOnlyBtc($coins);
+    }
 
-    $coins = $this->getOnlyBtc($coins);
+    //$coins = $this->getOnlyBtc($coins);
     $this->savePairs($coins);
 
     $cnt_coins = 0;
@@ -47,7 +49,6 @@ class Coinman
         $tradeData = $this->poloniex->get_trade_history($coin);
         $sales = $this->countTransaction($tradeData, 'sell');
         $buys = $this->countTransaction($tradeData, 'buy');
-
         $coinData = [
                     $coin,
                     $buys,
@@ -60,7 +61,7 @@ class Coinman
   }
 
   public function loadData() {
-    $exe = $this->db->query("SELECT * FROM trade_history");
+    $exe = $this->db->query("SELECT * FROM trade_history ORDER BY buys DESC LIMIT 5");
     $displayData = $exe->fetchAll();
     if(empty($displayData)) {
       // i've not taken care of this....
@@ -69,27 +70,29 @@ class Coinman
   }
 
   private function saveCoinData($coinData) {
-    $coin = $coindata[0];
+    $coin = $coinData[0];
     $buys = $coinData[1];
     $sales = $coinData[2];
-    $this->db->query("INSERT INTO trade_history VALUES (null, '$coin', '$buys', '$sales' )");
+    
+    $this->db->query("UPDATE trade_history SET buys = '$buys', sales = '$sales' WHERE pair='$coin' )");
   }
 
   private function getPairsFromDb() {
-    $exe = $this->db->query("SELECT pairs FROM dragPairs LIMIT 1");
-    $pairJSON = $exe->fetch()['pairs'];
+    $exe = $this->db->query("SELECT pairs FROM pairs LIMIT 1");
+    $pairJSON = $exe->fetch(PDO::FETCH_ASSOC)['pairs'];
     return json_decode($pairJSON, true);
   }
 
   private function savePairs($pairs) {
     $pairs = json_encode($pairs);
-    $exe = $this->db->query("UPDATE dragPairs SET pairs = $pairs");
+    $exe = $this->db->query("INSERT into pairs VALUES (null, '$pairs')");
   }
 
 
   private function getOnlyBtc($pairs) {
     foreach ($pairs as $key => $value) {
-      if(!strpos($value, 'BTC')) {
+        $pos = strpos($value, 'BTC');
+      if($pos === false) {
         unset($pairs[$key]);
       }
     }
