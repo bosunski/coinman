@@ -6,7 +6,7 @@
 </head>
 <body>
 
-
+<div id="load-data"><!-- all data contents here--></div>
 
 <script type="text/javascript">
 	$("document").ready(function (){
@@ -20,6 +20,7 @@
 			},
 			success: function(data){
 				// here data is alread in Json from the dataType set
+				// $("#load-data").html(converted json here);
 			}
 		});
 	});
